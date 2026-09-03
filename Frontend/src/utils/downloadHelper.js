@@ -25,7 +25,7 @@ export const downloadResourceFile = (resourceOrUrl) => {
     fileUrl = resourceOrUrl;
   }
 
-  const backendHost = (import.meta.env.VITE_API_URL || "http://localhost:7000")
+  const backendHost = (import.meta.env.VITE_API_URL || window.location.origin)
     .trim()
     .replace(/\/api\/?$/, "");
 
