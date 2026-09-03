@@ -61,6 +61,9 @@ const connectDB = async (retryCount = 0) => {
     }
 
     console.error("❌ Could not connect to MongoDB after multiple attempts.");
+    if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+      throw new Error("Could not connect to MongoDB after multiple attempts.");
+    }
     process.exit(1);
   }
 };

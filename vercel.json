@@ -5,12 +5,16 @@
   "outputDirectory": "Frontend/dist",
   "functions": {
     "Backend/api/index.js": {
-      "runtime": "nodejs22.x"
+      "maxDuration": 10
     }
   },
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/(.*)",
+      "destination": "/Backend/api/index.js"
+    },
+    {
+      "source": "/api",
       "destination": "/Backend/api/index.js"
     },
     {
