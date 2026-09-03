@@ -1,29 +1,21 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "Frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    },
-    {
-      "src": "Backend/api/index.js",
-      "use": "@vercel/node"
+  "buildCommand": "npm run build --prefix Frontend",
+  "installCommand": "npm install --prefix Frontend && npm install --prefix Backend",
+  "outputDirectory": "Frontend/dist",
+  "functions": {
+    "Backend/api/index.js": {
+      "runtime": "nodejs22.x"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/Backend/api/index.js"
+      "source": "/api/:path*",
+      "destination": "/Backend/api/index.js"
     },
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
