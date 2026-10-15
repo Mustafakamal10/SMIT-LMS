@@ -1,72 +1,40 @@
-import dns from "dns";
 import mongoose from "mongoose";
-
-// Ensure Node uses IPv4 first for reliable DNS lookups
-try {
-  if (dns.setDefaultResultOrder) {
-    dns.setDefaultResultOrder("ipv4first");
-  }
-} catch (e) {
-  // Ignore if unsupported
-}
 
 let isConnected = false;
 
-const connectDB = async (retryCount = 0) => {
+const DIRECT_FALLBACK_URI =
+  "mongodb://murtazakamalkamalhussain_db_user:KRiq6uGoyFHIuF0e@ac-zax4ggp-shard-00-00.cumygyl.mongodb.net:27017,ac-zax4ggp-shard-00-01.cumygyl.mongodb.net:27017,ac-zax4ggp-shard-00-02.cumygyl.mongodb.net:27017/LMS?ssl=true&authSource=admin&retryWrites=true&w=majority";
+
+const connectDB = async () => {
   if (isConnected || mongoose.connection.readyState >= 1) {
     return;
   }
 
-  const mongoUri =
-    process.env.MONGO_URI ||
-    "mongodb+srv://murtazakamalkamalhussain_db_user:KRiq6uGoyFHIuF0e@cluster0.cumygyl.mongodb.net/LMS?retryWrites=true&w=majority";
-  if (!mongoUri) {
-    console.warn(
-      "⚠️ MONGO_URI is missing. Please set MONGO_URI in your environment variables.",
-    );
-    return;
-  }
+  const mongoUri = process.env.MONGO_URI || DIRECT_FALLBACK_URI;
 
   try {
     console.log("Connecting to MongoDB...");
     await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 8000,
     });
     isConnected = true;
     console.log("✅ MongoDB Connected");
   } catch (error) {
-    console.error("❌ MongoDB Connection Error:", error.message);
-
-    // If querySrv or ECONNREFUSED error, attempt setting public DNS fallback and retry
-    if (
-      retryCount === 0 &&
-      (error.message.includes("querySrv") ||
-        error.message.includes("ECONNREFUSED"))
-    ) {
-      console.log(
-        "🔄 Retrying MongoDB connection with fallback DNS servers (8.8.8.8, 1.1.1.1)...",
-      );
+    console.error("❌ MongoDB Primary Connection Error:", error.message);
+    if (mongoUri !== DIRECT_FALLBACK_URI) {
       try {
-        dns.setServers(["8.8.8.8", "1.1.1.1"]);
-      } catch (dnsErr) {
-        // ignore
+        console.log("🔄 Retrying with direct MongoDB cluster connection...");
+        await mongoose.connect(DIRECT_FALLBACK_URI, {
+          serverSelectionTimeoutMS: 8000,
+        });
+        isConnected = true;
+        console.log("✅ MongoDB Connected via direct cluster URI");
+        return;
+      } catch (fallbackErr) {
+        console.error("❌ Direct cluster connection failed:", fallbackErr.message);
       }
-      return await connectDB(retryCount + 1);
     }
-
-    if (retryCount < 2) {
-      console.log(
-        `🔄 Retrying MongoDB connection in 3 seconds (attempt ${retryCount + 1}/2)...`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      return await connectDB(retryCount + 1);
-    }
-
-    console.error("❌ Could not connect to MongoDB after multiple attempts.");
-    if (process.env.VERCEL || process.env.NODE_ENV === "production") {
-      throw new Error("Could not connect to MongoDB after multiple attempts.");
-    }
-    process.exit(1);
+    throw error;
   }
 };
 
