@@ -2,9 +2,9 @@ import transporter from "../config/email.js";
 
 const sendEmail = async ({ to, subject, html }) => {
   const fromEmail =
-    process.env.EMAIL_FROM ||
     process.env.SENDER_EMAIL ||
-    "noreply@saylani.com";
+    process.env.EMAIL_FROM ||
+    "murtazakamalkamalhussain@gmail.com";
 
   try {
     return await transporter.sendMail({
