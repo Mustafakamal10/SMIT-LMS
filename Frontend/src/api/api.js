@@ -1,8 +1,16 @@
 import axios from "axios";
 
+const getBaseURL = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl || (import.meta.env.PROD && envUrl.includes("localhost"))) {
+    return "/api";
+  }
+  return envUrl;
+};
+
 // Axios instance for handling API requests with baseURL and credentials
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:7000/api" : "/api"),
+  baseURL: getBaseURL(),
   withCredentials: true,
 });
 
