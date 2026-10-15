@@ -267,19 +267,23 @@ export const forgotPassword = async (req, res) => {
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     const resetLink = `${clientUrl}/reset-password?token=${resetToken}`;
 
-    await sendEmail({
-      to: user.email,
-      subject: "Password Reset Request - Saylani Bootcamp LMS",
-      html: getPasswordResetEmailHtml({
-        firstName: user.firstName || "User",
-        resetLink,
-        expireTime: "1 hour",
-      }),
-    });
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Password Reset Request - Saylani Bootcamp LMS",
+        html: getPasswordResetEmailHtml({
+          firstName: user.firstName || "User",
+          resetLink,
+          expireTime: "1 hour",
+        }),
+      });
+    } catch (emailErr) {
+      console.warn("Email sending failed or skipped:", emailErr.message);
+    }
 
     return res.status(200).json({
       success: true,
-      message: "Password reset email sent successfully",
+      message: "Password reset link generated successfully. Please check your email.",
     });
   } catch (error) {
     return res.status(500).json({
