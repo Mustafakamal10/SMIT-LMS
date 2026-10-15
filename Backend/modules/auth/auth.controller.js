@@ -274,6 +274,7 @@ export const forgotPassword = async (req, res) => {
       await sendEmail({
         to: user.email,
         subject: "Password Reset Request - Saylani Bootcamp LMS",
+        text: `Hello ${user.firstName || "User"},\n\nWe received a request to reset your password for your Saylani Bootcamp LMS account.\n\nClick the link below to reset your password:\n${resetLink}\n\nThis link will expire in 1 hour.\n\nIf you did not request this, please ignore this email.`,
         html: getPasswordResetEmailHtml({
           firstName: user.firstName || "User",
           resetLink,

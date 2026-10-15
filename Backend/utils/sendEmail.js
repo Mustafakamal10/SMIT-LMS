@@ -1,6 +1,6 @@
 import transporter from "../config/email.js";
 
-const sendEmail = async ({ to, subject, html }) => {
+const sendEmail = async ({ to, subject, text, html }) => {
   const fromEmail =
     process.env.SENDER_EMAIL ||
     process.env.EMAIL_FROM ||
@@ -11,6 +11,7 @@ const sendEmail = async ({ to, subject, html }) => {
       from: `"Saylani Bootcamp LMS" <${fromEmail}>`,
       to,
       subject,
+      text: text || (html ? html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : ""),
       html,
     });
   } catch (error) {
