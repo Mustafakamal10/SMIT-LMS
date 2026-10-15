@@ -29,7 +29,10 @@ export const forgotPassword = async (req, res) => {
     user.resetPasswordExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
     await user.save();
 
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const clientUrl =
+      process.env.CLIENT_URL ||
+      req.headers?.origin ||
+      "https://smit-lms-iota.vercel.app";
     const resetLink = `${clientUrl}/reset-password?token=${resetToken}`;
 
     try {

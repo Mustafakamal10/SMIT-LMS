@@ -264,7 +264,10 @@ export const forgotPassword = async (req, res) => {
     user.resetPasswordExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
     await user.save();
 
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const clientUrl =
+      process.env.CLIENT_URL ||
+      req.headers?.origin ||
+      "https://smit-lms-iota.vercel.app";
     const resetLink = `${clientUrl}/reset-password?token=${resetToken}`;
 
     try {
@@ -455,15 +458,19 @@ export const register = async (req, res) => {
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
     const setupLink = `${clientUrl}/reset-password?token=${setupToken}`;
 
-    await sendEmail({
-      to: student.email,
-      subject: "Welcome to Saylani Bootcamp LMS - Set Up Your Password",
-      html: getAccountSetupEmailHtml({
-        firstName: student.firstName || "Student",
-        setupLink,
-        expireTime: "7 days",
-      }),
-    });
+    try {
+      await sendEmail({
+        to: student.email,
+        subject: "Welcome to Saylani Bootcamp LMS - Set Up Your Password",
+        html: getAccountSetupEmailHtml({
+          firstName: student.firstName || "Student",
+          setupLink,
+          expireTime: "7 days",
+        }),
+      });
+    } catch (emailErr) {
+      console.warn("Setup email sending failed or skipped:", emailErr.message);
+    }
 
     const studentResponse = student.toObject();
     delete studentResponse.password;

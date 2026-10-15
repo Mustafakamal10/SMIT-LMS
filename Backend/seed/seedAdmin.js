@@ -59,6 +59,24 @@ const seedAdmin = async () => {
       console.log("Default Admin Created:", adminEmail);
     }
 
+    // 2b. Seed Mustafa Kamal Admin
+    const mustafaEmail = "mustafakamal20056@gmail.com";
+    let mustafaAdmin = await Admin.findOne({ email: mustafaEmail });
+    if (!mustafaAdmin) {
+      const mustafaHashedPassword = await bcrypt.hash("Admin@123", 10);
+      await Admin.create({
+        firstName: "Mustafa",
+        lastName: "Kamal",
+        email: mustafaEmail,
+        password: mustafaHashedPassword,
+        phoneNumber: "03000000000",
+        role: ROLES.ADMIN,
+        profileImage: "",
+        status: "active",
+      });
+      console.log("Mustafa Kamal Admin Created:", mustafaEmail);
+    }
+
     // 3. Seed Default Batch
     let defaultBatch = await Batch.findOne({ batchName: "Cohort 2026-A" });
     if (!defaultBatch) {

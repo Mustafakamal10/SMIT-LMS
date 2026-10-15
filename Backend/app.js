@@ -29,7 +29,8 @@ app.get("/api/health", (req, res) => {
   res.json({ success: true, status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Mount all routes at /api
+// Mount routes at both /api and / to handle direct and rewritten requests seamlessly
 app.use("/api", mainRouter);
+app.use("/", mainRouter);
 
 export default app;
