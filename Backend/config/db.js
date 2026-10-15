@@ -17,7 +17,9 @@ const connectDB = async (retryCount = 0) => {
     return;
   }
 
-  const mongoUri = process.env.MONGO_URI;
+  const mongoUri =
+    process.env.MONGO_URI ||
+    "mongodb+srv://murtazakamalkamalhussain_db_user:KRiq6uGoyFHIuF0e@cluster0.cumygyl.mongodb.net/LMS?retryWrites=true&w=majority";
   if (!mongoUri) {
     console.warn(
       "⚠️ MONGO_URI is missing. Please set MONGO_URI in your environment variables.",

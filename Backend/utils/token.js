@@ -8,7 +8,7 @@ export const generateAccessToken = (user) => {
             role: user.role,
             tokenVersion: user.tokenVersion,
         },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || "smit_lms_super_secret_jwt_key_2026",
         {
             expiresIn: process.env.JWT_EXPIRES_IN || "24h",
         }
@@ -22,7 +22,7 @@ export const generateRefreshToken = (user) => {
             tokenVersion: user.tokenVersion,
             type: "refresh",
         },
-        process.env.JWT_REFRESH_SECRET,
+        process.env.JWT_REFRESH_SECRET || "smit_lms_super_secret_refresh_key_2026",
         {
             expiresIn: "7d",
         }
